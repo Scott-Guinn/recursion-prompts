@@ -64,7 +64,6 @@ var isEven = function(n) {
 // sumBelow(10); // 45
 // sumBelow(7); // 21
 var sumBelow = function(n) {
-  // base case: n = 0
   if (n === 0) {
     return n;
   }
@@ -78,50 +77,51 @@ var sumBelow = function(n) {
 
 // // 6. Get the integers within a range (x, y).
 // // range(2,9); // [3,4,5,6,7,8]
-// // range(3, 5); //[4]
-// var range = function(x, y) {
-//   var result = [];
-//     function innerFunction(a, b) {
-//       if (a + 2 === b) {
-//         result.push(a + 1);
-//       } else {
-//         innerFunction(a + 1, b));
-//       }
-//     }
-//   innerFunction(x, y);
-//   return result;
-// };
+// // range(5, 3); //[4]
+var range = function(x, y) {
+
+   if (x === y || y - 1 === x){
+     return [];
+   }
+
+   if (x < y) {
+     if (x + 2 === y) {
+       return [y - 1];
+     }
+     return range(x, y-1).concat(y-1);
+
+  } else {
+      if (x - 2 === y) {
+       return [x - 1];
+      }
+      return range(x, y+1).concat(y+1);
+   }
+};
 
 // 7. Compute the exponent of a number.
 // The exponent of a number says how many times the base number is used as a factor.
 // 8^2 = 8 x 8 = 64. Here, 8 is the base and 2 is the exponent.
 // exponent(4,3); // 64
 // https://www.khanacademy.org/computing/computer-science/algorithms/recursive-algorithms/a/computing-powers-of-a-number
-// var exponent = function(base, exp) {
-//   // edgecases:
-//   //            exp is < 0
-//   if (exp === 0) {
-//     return 1;
-//   }
+var exponent = function(base, exp) {
+  if (exp === 0) {
+    return 1;
+  }
 
-//   var negExp = (exp < 0);
+  var negExp = (exp < 0);
 
-//   // base case:
-//   if (exp === 1) {
-//     return base;
-//   }
-
-//   // recursive case:
-//   return base * exponent(base, exp - 1);
-
-// };
-
-// // 1
-// exponent(4, -2) // 1/16
-// 2
-
-// 3
-
+  // recursive case:
+  // exponent positive and even
+  if (!negExp && exp % 2 === 0) {
+    return exponent(base, exp/2) * exponent(base, exp/2);
+  // exponent positive and odd
+  } else if (!negExp && exp % 2 === 1) {
+    return base * exponent(base, exp - 1);
+  // exponent negative
+  } else if (negExp) {
+    return 1 / exponent(base, exp * -1);
+  }
+};
 
 // 8. Determine if a number is a power of two.
 // powerOfTwo(1); // true
@@ -250,30 +250,54 @@ var countKeysInObj = function(obj, key) {
 // countValuesInObj(obj, 'r') // 2
 // countValuesInObj(obj, 'e') // 1
 
+// var obj = {1: {2: 'y'}, 3: {4: { 5: 'r'}, 6: {7, 'r'}}, 8: 'e'}
+
 // obj = {'1': 'r'}
 var countValuesInObj = function(obj, value) {
-  //base case: no nested objects
+  // base case: no nested objects
+    // iterate through object
+      //   if the value at the current key is equal to the search value, AND is not an object(!) increment count by 1
+      //
+
   var count = 0;
+
+    // iterate through object keys
   for (var key in obj) {
-    if (obj[key] === value) {
-      return count += 1;
+    if(typeof obj[key] !== 'object' && obj[key] === value) {
+      count++;
     } else if (typeof obj[key] === 'object') {
-      return countValuesInObj(obj[key]);
+      // if value IS an object, recursive case...
+        // recursive case: value is an object, call countValuesInObj on that value and add return to count variable
+      count += countValuesInObj(obj[key], value);
     }
-  };
-    // declare a count variable equal to 0
-    // iterate through each property, incrementing a count variable everytime the search obj is found
+  }
 
-  // recursive case: nested objects
-    // iterate through each property, calling countValuesInObj on any nested object (typeof === 'object')
-    // increment count variable for any of the search object that are found
-
+  return count;
 };
 
 // 24. Find all keys in an object (and nested objects) by a provided name and rename
 // them to a provided new name while preserving the value stored at that key.
 var replaceKeysInObj = function(obj, oldKey, newKey) {
+  for (var key in obj) {
+    // if key matches oldKey, rewrite using newKey
+    if (key === oldKey) {
+      // Assign newKey with oldKey value (obj[newKey] = obj[oldkey])
+      obj[newKey] = obj[oldKey];
+      // delete oldKey
+      delete obj[oldKey];
+    }
+    // if value is an object, recursive case...
+    if (typeof obj[key] === 'object') {
+        // value at that key is equal to a call of replaceKeysInObj with the input argument as that value
+        obj[key] = replaceKeysInObj(obj[key], oldKey, newKey);
+    }
+  }
+  return obj;
 };
+
+//           input = {e:{x:'y'},  t:{r:{e:'r'},p:{y:'r'}},y:'e'};
+// expected output = {f:{x: 'y'}, t:{r:{f:'r'},p:{y:'r'}},y:'e'};
+// replaceKeysInObj(input, 'e', 'f')
 
 // 25. Get the first n Fibonacci numbers. In the Fibonacci sequence, each subsequent
 // number is the sum of the previous two.
